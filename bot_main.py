@@ -25,7 +25,11 @@ ser = serial.Serial('/dev/ttyUSB0', 9600)
 global bot 
 bot = telegram.Bot(token=TOKEN) 
 
+<<<<<<< HEAD
 whitelist = []
+=======
+whitelist = [103823343, 115199937, 142509377, 187493679, 25437788, 79338539, 83683719]
+>>>>>>> 967ccdf31fd4983968263a34ce90f48a6dbd64bf
 
 #Вот на эту часть кода мы подключим вебхук 
 @app.route('/HOOK', methods=['POST', 'GET']) 
@@ -35,7 +39,6 @@ def webhook_handler():
         chat_id = update.message.chat.id 
         text = update.message.text
         text = text.lower()
-        print text, HASH
         if text == "/help":
             bot.sendMessage(chat_id=chat_id, text='SNE 2016-17 MAKES US CRY \n/add <password> - add to whitelist \npress <anykey> or /open to open the door')
         elif text.startswith("/add"):
