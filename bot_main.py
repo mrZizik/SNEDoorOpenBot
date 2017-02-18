@@ -20,7 +20,7 @@ app = Flask(__name__)
 
 # serial
 import serial
-# ser = serial.Serial('/dev/ttyUSB0', 9600)
+ser = serial.Serial('/dev/ttyUSB0', 9600)
 
 
 global bot 
