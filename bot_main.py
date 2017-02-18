@@ -17,42 +17,50 @@ from secret import *
 app = Flask(__name__) 
 
 
+
 # serial
 import serial
-ser = serial.Serial('/dev/ttyUSB0', 9600)
+# ser = serial.Serial('/dev/ttyUSB0', 9600)
 
 
 global bot 
 bot = telegram.Bot(token=TOKEN) 
 
-<<<<<<< HEAD
-whitelist = []
-=======
-whitelist = [103823343, 115199937, 142509377, 187493679, 25437788, 79338539, 83683719]
->>>>>>> 967ccdf31fd4983968263a34ce90f48a6dbd64bf
+whitefile = open("whitelist",'a+')
+whitelist = whitefile.read().split(",")
+
 
 #Вот на эту часть кода мы подключим вебхук 
 @app.route('/HOOK', methods=['POST', 'GET']) 
 def webhook_handler():
     if request.method == "POST": 
         update = telegram.Update.de_json(request.get_json(force=True))
-        chat_id = update.message.chat.id 
-        text = update.message.text
-        text = text.lower()
-        if text == "/help":
-            bot.sendMessage(chat_id=chat_id, text='SNE 2016-17 MAKES US CRY \n/add <password> - add to whitelist \npress <anykey> or /open to open the door')
-        elif text.startswith("/add"):
-            if len(text.split(" "))==2 and HASH == hashlib.sha512(SALT + text.split(" ")[1]).hexdigest():
-                whitelist.append(chat_id)
-                bot.sendMessage(chat_id=chat_id, text='Added to whitelist')
+        try:
+            chat_id = update.message.chat.id 
+            text = update.message.text
+            username = update.message.from_user.username
+            text = text.lower()
+            if text == "/help":
+                bot.sendMessage(chat_id=chat_id, text='SNE 2016-17 MAKES US CRY \n/add <password> - Add to whitelist \nPress <anykey> or /open to open the door \n/list - List all with open magic')
+            elif text.startswith("/add"):
+                if username in whitelist:
+                    bot.sendMessage(chat_id=chat_id, text='Already in whitelist')
+                elif len(text.split(" "))==2 and HASH == hashlib.sha512(SALT + text.split(" ")[1]).hexdigest():
+                    whitelist.append(username)
+                    whitefile.write(','+username)
+                    bot.sendMessage(chat_id=chat_id, text='Added to whitelist')
+                else:
+                    bot.sendMessage(chat_id=chat_id, text='YOU SHALL NOT PASS!')
+            elif text == "/list":
+                bot.sendMessage(chat_id=chat_id, text="@" + "\n@".join(whitelist[1:]))
             else:
-                bot.sendMessage(chat_id=chat_id, text='YOU SHALL NOT PASS!')
-        else:
-            if chat_id in whitelist:
-                ser.write(b'o')
-                bot.sendMessage(chat_id=chat_id, text='Door opened')
-            else:
-                bot.sendMessage(chat_id=chat_id, text='Speak \'friend\' and enter. What\'s the Elvish word for friend?')
+                if username in whitelist:
+                    ser.write(b'o')
+                    bot.sendMessage(chat_id=chat_id, text='Door opened')
+                else:
+                    bot.sendMessage(chat_id=chat_id, text='Speak \'friend\' and enter. What\'s the Elvish word for friend?')
+        except Exception, e:
+            print e
     return 'ok' 
 
 #А вот так подключается вебхук 
