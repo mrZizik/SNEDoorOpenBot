@@ -26,9 +26,13 @@ ser = serial.Serial('/dev/ttyUSB0', 9600)
 global bot 
 bot = telegram.Bot(token=TOKEN) 
 
-whitefile = open("whitelist",'a+')
-whitelist = whitefile.read().split(",")
+def load_whitefile():
+    whitefile = open("whitelist",'rt')
+    whitelist = whitefile.read().split(",")
+    whitefile.close()
+    return whitelist
 
+whitelist = load_whitefile()
 
 #Вот на эту часть кода мы подключим вебхук 
 @app.route('/HOOK', methods=['POST', 'GET']) 
@@ -36,10 +40,12 @@ def webhook_handler():
     if request.method == "POST": 
         update = telegram.Update.de_json(request.get_json(force=True))
         try:
+            whitelist = load_whitefile()
             chat_id = update.message.chat.id 
             text = update.message.text
             username = update.message.from_user.username
             text = text.lower()
+            print( "Got message from {}: {}".format( username, text ) )
             if text == "/help":
                 bot.sendMessage(chat_id=chat_id, text='SNE 2016-17 MAKES US CRY \n/add <password> - Add to whitelist \nPress <anykey> or /open to open the door \n/list - List all with open magic')
             elif text.startswith("/add"):
@@ -47,7 +53,9 @@ def webhook_handler():
                     bot.sendMessage(chat_id=chat_id, text='Already in whitelist')
                 elif len(text.split(" "))==2 and HASH == hashlib.sha512(SALT + text.split(" ")[1]).hexdigest():
                     whitelist.append(username)
-                    whitefile.write(','+username)
+                    whitefile = open("whitelist",'wt')
+                    whitefile.write( ','.joinn(whitelist) )
+                    whitefile.close()
                     bot.sendMessage(chat_id=chat_id, text='Added to whitelist')
                 else:
                     bot.sendMessage(chat_id=chat_id, text='YOU SHALL NOT PASS!')
