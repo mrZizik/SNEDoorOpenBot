@@ -20,7 +20,7 @@ app = Flask(__name__)
 
 # serial
 import serial
-ser = serial.Serial('/dev/ttyUSB0', 9600)
+ser = serial.Serial('/dev/ttyUSB1', 9600)
 
 
 global bot 
@@ -30,6 +30,7 @@ def load_whitefile():
     whitefile = open("whitelist",'rt')
     whitelist = whitefile.read().split(",")
     whitefile.close()
+    print( str(whitelist) )
     return whitelist
 
 whitelist = load_whitefile()
@@ -60,7 +61,7 @@ def webhook_handler():
                 else:
                     bot.sendMessage(chat_id=chat_id, text='YOU SHALL NOT PASS!')
             elif text == "/list":
-                bot.sendMessage(chat_id=chat_id, text="@" + "\n@".join(whitelist[1:]))
+                bot.sendMessage(chat_id=chat_id, text="@" + "\n@".join(whitelist[0:]))
             else:
                 if username in whitelist:
                     ser.write(b'o')
