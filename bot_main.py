@@ -28,7 +28,7 @@ bot = telegram.Bot(token=TOKEN)
 
 def load_whitefile():
     whitefile = open("whitelist",'rt')
-    whitelist = whitefile.read().split(",")
+    whitelist = whitefile.readline().strip().split(",")
     whitefile.close()
     print( str(whitelist) )
     return whitelist
@@ -55,7 +55,7 @@ def webhook_handler():
                 elif len(text.split(" "))==2 and HASH == hashlib.sha512(SALT + text.split(" ")[1]).hexdigest():
                     whitelist.append(username)
                     whitefile = open("whitelist",'wt')
-                    whitefile.write( ','.joinn(whitelist) )
+                    whitefile.write( ','.join(whitelist) )
                     whitefile.close()
                     bot.sendMessage(chat_id=chat_id, text='Added to whitelist')
                 else:
@@ -63,10 +63,13 @@ def webhook_handler():
             elif text == "/list":
                 bot.sendMessage(chat_id=chat_id, text="@" + "\n@".join(whitelist[0:]))
             else:
+                print( "Searching {} in {}...".format( username, str( whitelist ) ), );
                 if username in whitelist:
+                    print( "OK" )
                     ser.write(b'o')
                     bot.sendMessage(chat_id=chat_id, text='Door opened')
                 else:
+                    print( "NO" )
                     bot.sendMessage(chat_id=chat_id, text='Speak \'friend\' and enter. What\'s the Elvish word for friend?')
         except Exception, e:
             print e
