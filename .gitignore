@@ -1,3 +1,6 @@
 secret*
 server*
 whitelist
+whitelist.bkp
+__pycache__/
+*.py[cod]
